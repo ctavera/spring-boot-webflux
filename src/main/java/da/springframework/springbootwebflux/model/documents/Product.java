@@ -1,11 +1,12 @@
 package da.springframework.springbootwebflux.model.documents;
 
-import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
+@NoArgsConstructor
 @Document(collection = "products")
 public class Product {
 
@@ -17,6 +18,11 @@ public class Product {
     private Double price;
 
     private Date creationDate;
+
+    public Product(String name, Double price) {
+        this.name = name;
+        this.price = price;
+    }
 
     public String getId() {
         return id;
