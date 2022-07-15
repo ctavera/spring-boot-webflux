@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import java.util.Date;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -31,7 +33,10 @@ public class SpringBootWebFluxBootstrap implements CommandLineRunner {
                         new Product("HP Notebook Omen 17", 2500.89),
                         new Product("Mica Cómoda 5 Cajones", 150.99),
                         new Product("TV Sony Bravia OLED 4K Ultra HD", 2255.99)
-                ).flatMap(product -> productRepository.save(product))
+                ).flatMap(product -> {
+                    product.setCreationDate(new Date());
+                    return productRepository.save(product);
+                })
                 .subscribe(product -> log.info("Inserted: " + product.getId() + " " + product.getName()));
     }
 }
