@@ -5,6 +5,7 @@ import da.springframework.springbootwebflux.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
@@ -14,9 +15,13 @@ import reactor.core.publisher.Flux;
 public class SpringBootWebFluxBootstrap implements CommandLineRunner {
 
     private final ProductRepository productRepository;
+    private final ReactiveMongoTemplate reactiveMongoTemplate;
 
     @Override
     public void run(String... args) throws Exception {
+
+        reactiveMongoTemplate.dropCollection("products").subscribe();
+
         Flux.just(new Product("TV Panasonic Pantalla LCD", 456.89),
                         new Product("Sony Camara HD Digital", 177.99),
                         new Product("Apple iPad", 46.89),
