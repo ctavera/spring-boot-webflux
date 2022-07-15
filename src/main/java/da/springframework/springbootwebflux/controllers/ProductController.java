@@ -37,8 +37,8 @@ public class ProductController {
         return "list";
     }
 
-    @GetMapping("/list-datadriver")
-    public String listDataDriver (Model model) {
+    @GetMapping("/datadriver-list")
+    public String dataDriverList (Model model) {
 
         Flux<Product> productFlux = productRepository.findAll()
                 .map(product -> {
@@ -55,8 +55,8 @@ public class ProductController {
         return "list";
     }
 
-    @GetMapping("/list-full")
-    public String listFull (Model model) {
+    @GetMapping("/full-list")
+    public String fullList (Model model) {
 
         Flux<Product> productFlux = productRepository.findAll()
                 .map(product -> {
@@ -69,5 +69,21 @@ public class ProductController {
         model.addAttribute("title", "Listado de Productos");
 
         return "list";
+    }
+
+    @GetMapping("/chunked-list")
+    public String chunkedList (Model model) {
+
+        Flux<Product> productFlux = productRepository.findAll()
+                .map(product -> {
+                    product.setName(product.getName().toUpperCase());
+
+                    return product;
+                }).repeat(5000);
+
+        model.addAttribute("products", productFlux);
+        model.addAttribute("title", "Listado de Productos");
+
+        return "chunked-list";
     }
 }
