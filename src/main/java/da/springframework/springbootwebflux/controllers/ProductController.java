@@ -78,7 +78,7 @@ public class ProductController {
                 .defaultIfEmpty(new Product())
                 .flatMap(product -> {
                     if (product.getId() == null){
-                        return Mono.error(new InterruptedException());
+                        return Mono.error(new InterruptedException("No existe el producto"));
                     }
 
                     return Mono.just(product);
@@ -106,6 +106,26 @@ public class ProductController {
         return productService.save(product).doOnNext(product1 -> {
             log.info("Producto guardado: " + product.getName() + " Id: " + product.getId());
         }).thenReturn("redirect:/list?success=producto+guardado+con+exito"); // too : }).then(Mono.just("redirect:/list"));
+    }
+
+    @GetMapping("/delete/{id}")
+    public Mono<String> delete(@PathVariable String id) {
+        return productService.findById(id)
+                .defaultIfEmpty(new Product())
+                .flatMap(product -> {
+                    if (product.getId() == null) {
+                        return Mono.error(new InterruptedException("No existe el producto a eliminar"));
+                    }
+
+                    return Mono.just(product);
+                })
+                .flatMap(product -> {
+                    log.info("Eliminando producto: " + product.getName());
+                    log.info("Eliminando producto Id: " + product.getId());
+                    return productService.delete(product);
+                })
+                .then(Mono.just("redirect:/list?success=producto+eliminado+con+exito"))
+                .onErrorResume(throwable -> Mono.just("redirect:/list?error=no+existe+el+producto+a+eliminar"));
     }
 
     @GetMapping("/datadriver-list")
