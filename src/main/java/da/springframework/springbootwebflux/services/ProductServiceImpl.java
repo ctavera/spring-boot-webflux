@@ -1,6 +1,8 @@
 package da.springframework.springbootwebflux.services;
 
+import da.springframework.springbootwebflux.model.documents.Category;
 import da.springframework.springbootwebflux.model.documents.Product;
+import da.springframework.springbootwebflux.repositories.CategoryRepository;
 import da.springframework.springbootwebflux.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import reactor.core.publisher.Mono;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public Flux<Product> findAll() {
@@ -46,5 +49,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Mono<Void> delete(Product product) {
         return productRepository.delete(product);
+    }
+
+    @Override
+    public Flux<Category> findAllCategories() {
+        return categoryRepository.findAll();
+    }
+
+    @Override
+    public Mono<Category> findCategoryById(String id) {
+        return categoryRepository.findById(id);
+    }
+
+    @Override
+    public Mono<Category> saveCategory(Category category) {
+        return categoryRepository.save(category);
     }
 }

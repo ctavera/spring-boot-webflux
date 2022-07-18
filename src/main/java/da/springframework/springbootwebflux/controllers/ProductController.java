@@ -103,8 +103,8 @@ public class ProductController {
             product.setCreationDate(new Date());
         }
 
-        return productService.save(product).doOnNext(product1 -> {
-            log.info("Producto guardado: " + product.getName() + " Id: " + product.getId());
+        return productService.save(product).doOnNext(prod -> {
+            log.info("Producto guardado: " + prod.getName() + " Id: " + prod.getId());
         }).thenReturn("redirect:/list?success=producto+guardado+con+exito"); // too : }).then(Mono.just("redirect:/list"));
     }
 

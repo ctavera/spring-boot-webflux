@@ -25,9 +25,16 @@ public class Product {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date creationDate;
 
+    private Category category;
+
     public Product(String name, Double price) {
         this.name = name;
         this.price = price;
+    }
+
+    public Product(String name, Double price, Category category) {
+        this(name, price);
+        this.category = category;
     }
 
     public String getId() {
@@ -60,5 +67,13 @@ public class Product {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }
