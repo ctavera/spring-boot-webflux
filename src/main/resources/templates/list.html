@@ -10,10 +10,11 @@
     <table>
         <thead>
         <tr>
-            <td>id</td>
-            <td>Nombre</td>
-            <td>Precio</td>
-            <td>Fecha</td>
+            <th>id</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Fecha</th>
+            <th>Editar</th>
         </tr>
         </thead>
         <tbody>
@@ -22,6 +23,7 @@
             <td th:text="${product.name}"></td>
             <td th:text="${product.price}"></td>
             <td th:text="${product.creationDate}"></td>
+            <td><a th:href="@{/form/} + ${product.id}">editar</a></td>
         </tr>
         </tbody>
     </table>

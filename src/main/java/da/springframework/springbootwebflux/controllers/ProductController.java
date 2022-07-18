@@ -7,7 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,6 +19,7 @@ import java.time.Duration;
 
 @Slf4j
 @RequiredArgsConstructor
+@SessionAttributes("product") //save on session for create and save
 @Controller
 public class ProductController {
 
@@ -43,8 +47,22 @@ public class ProductController {
         return Mono.just("form");
     }
 
+    @GetMapping("/form/{id}")
+    public Mono<String> edit(@PathVariable String id, Model model) {
+
+        Mono<Product> productMono = productService.findById(id)
+                .doOnNext(product -> log.info("Producto: " + product.getName()))
+                .defaultIfEmpty(new Product());
+
+        model.addAttribute("title", "Editar Producto");
+        model.addAttribute("product", productMono);
+
+        return Mono.just("form");
+    }
+
     @PostMapping("/form")
-    public Mono<String> save(Product product){
+    public Mono<String> save(Product product, SessionStatus sessionStatus){
+        sessionStatus.setComplete(); //To clean the SessionAttribute
 
         return productService.save(product).doOnNext(product1 -> {
             log.info("Producto guardado: " + product.getName() + " Id: " + product.getId());
