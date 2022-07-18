@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +16,9 @@ import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
 import java.time.Duration;
+import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -85,12 +88,24 @@ public class ProductController {
     }
 
     @PostMapping("/form")
-    public Mono<String> save(Product product, SessionStatus sessionStatus){
+    public Mono<String> save(@Valid Product product, BindingResult result, Model model, SessionStatus sessionStatus){
+
+        if (result.hasErrors()) {
+            model.addAttribute("title", "Errores en el formulario Producto");
+            model.addAttribute("button", "Guardar");
+
+            return Mono.just("form");
+        }
+
         sessionStatus.setComplete(); //To clean the SessionAttribute
+
+        if (product.getCreationDate() == null){
+            product.setCreationDate(new Date());
+        }
 
         return productService.save(product).doOnNext(product1 -> {
             log.info("Producto guardado: " + product.getName() + " Id: " + product.getId());
-        }).thenReturn("redirect:/list"); // too : }).then(Mono.just("redirect:/list"));
+        }).thenReturn("redirect:/list?success=producto+guardado+con+exito"); // too : }).then(Mono.just("redirect:/list"));
     }
 
     @GetMapping("/datadriver-list")
