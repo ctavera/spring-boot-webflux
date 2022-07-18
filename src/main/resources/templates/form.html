@@ -9,7 +9,7 @@
     <a th:href="@{/list}">volver</a>
     <div>
         <form th:action="@{/form}" method="post" th:object="${product}">
-<!--            <input th:if="${product.id != null}" type="hidden" th:field="*{id}">-->
+            <input th:if="${product.id != null}" type="hidden" th:field="*{id}">
             <div>
                 <label for="name">Nombre</label>
                 <div><input type="text" th:field="*{name}"></div>
@@ -23,7 +23,7 @@
                 <div><input type="date" th:field="*{creationDate}"></div>
             </div>
             <div>
-                <div><input type="submit" value="Crear"></div>
+                <div><input type="submit" th:value="${button}"></div>
             </div>
         </form>
     </div>
