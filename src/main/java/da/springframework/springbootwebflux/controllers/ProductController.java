@@ -1,7 +1,7 @@
 package da.springframework.springbootwebflux.controllers;
 
 import da.springframework.springbootwebflux.model.documents.Product;
-import da.springframework.springbootwebflux.repositories.ProductRepository;
+import da.springframework.springbootwebflux.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -17,17 +17,12 @@ import java.time.Duration;
 @Controller
 public class ProductController {
 
-    private final ProductRepository productRepository;
+    private final ProductService productService;
 
     @GetMapping({"/list", "/"})
     public String list (Model model) {
 
-        Flux<Product> productFlux = productRepository.findAll()
-                .map(product -> {
-                    product.setName(product.getName().toUpperCase());
-
-                    return product;
-                });
+        Flux<Product> productFlux = productService.findAllByNameUpperCase();
 
         productFlux.subscribe(product -> log.info(product.getName()));
 
@@ -40,12 +35,7 @@ public class ProductController {
     @GetMapping("/datadriver-list")
     public String dataDriverList (Model model) {
 
-        Flux<Product> productFlux = productRepository.findAll()
-                .map(product -> {
-                    product.setName(product.getName().toUpperCase());
-
-                    return product;
-                }).delayElements(Duration.ofSeconds(1));
+        Flux<Product> productFlux = productService.findAllByNameUpperCase().delayElements(Duration.ofSeconds(1));
 
         productFlux.subscribe(product -> log.info(product.getName()));
 
@@ -58,12 +48,7 @@ public class ProductController {
     @GetMapping("/full-list")
     public String fullList (Model model) {
 
-        Flux<Product> productFlux = productRepository.findAll()
-                .map(product -> {
-                    product.setName(product.getName().toUpperCase());
-
-                    return product;
-                }).repeat(5000);
+        Flux<Product> productFlux = productService.findAllByNameUpperCaseRepeat();
 
         model.addAttribute("products", productFlux);
         model.addAttribute("title", "Listado de Productos");
@@ -74,12 +59,7 @@ public class ProductController {
     @GetMapping("/chunked-list")
     public String chunkedList (Model model) {
 
-        Flux<Product> productFlux = productRepository.findAll()
-                .map(product -> {
-                    product.setName(product.getName().toUpperCase());
-
-                    return product;
-                }).repeat(5000);
+        Flux<Product> productFlux = productService.findAllByNameUpperCaseRepeat();
 
         model.addAttribute("products", productFlux);
         model.addAttribute("title", "Listado de Productos");
