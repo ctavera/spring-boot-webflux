@@ -25,6 +25,16 @@
                 <div><input type="date" th:field="*{creationDate}"></div>
             </div>
             <div>
+                <label for="category.id">Categoria</label>
+                <div>
+                    <select th:field="*{category.id}">
+                        <option value="">-- seleccionar --</option>
+                        <option th:each="category: ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+                    </select>
+                    <small th:if="${#fields.hasErrors('category.id')}" th:errors="*{category.id}"></small>
+                </div>
+            </div>
+            <div>
                 <div><input type="submit" th:value="${button}"></div>
             </div>
         </form>

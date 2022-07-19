@@ -1,5 +1,6 @@
 package da.springframework.springbootwebflux.controllers;
 
+import da.springframework.springbootwebflux.model.documents.Category;
 import da.springframework.springbootwebflux.model.documents.Product;
 import da.springframework.springbootwebflux.services.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -7,10 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
@@ -39,6 +37,12 @@ public class ProductController {
         model.addAttribute("title", "Listado de Productos");
 
         return Mono.just("list");
+    }
+
+    @ModelAttribute("categories") //pass to the form in global form
+    public Flux<Category> categories(){
+
+        return productService.findAllCategories();
     }
 
     @GetMapping("/form")
