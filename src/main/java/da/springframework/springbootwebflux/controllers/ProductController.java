@@ -52,6 +52,24 @@ public class ProductController {
         return productService.findAllCategories();
     }
 
+    @GetMapping("/view/{id}")
+    public Mono<String> view(Model model, @PathVariable String id) {
+
+        return productService.findById(id)
+                .doOnNext(product -> {
+                    model.addAttribute("product", product);
+                    model.addAttribute("title", "Detalle Producto");
+                }).switchIfEmpty(Mono.just(new Product()))
+                .flatMap(product -> {
+                    if (product.getId() == null) {
+                        return Mono.error(new InterruptedException("No existe el producto"));
+                    }
+
+                    return Mono.just(product);
+                }).then(Mono.just("view"))
+                .onErrorResume(throwable -> Mono.just("redirect:/list?error=no+existe+el+producto"));
+    }
+
     @GetMapping("/form")
     public Mono<String> create(Model model) {
 
