@@ -5,6 +5,8 @@ import da.springframework.springbootwebflux.model.documents.Product;
 import da.springframework.springbootwebflux.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,8 +17,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.time.Duration;
 import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,6 +29,9 @@ import java.util.Date;
 public class ProductController {
 
     private final ProductService productService;
+
+    @Value("${config.uploads.path}")
+    private String path;
 
     @GetMapping({"/list", "/"})
     public Mono<String> list (Model model) {
@@ -92,7 +99,7 @@ public class ProductController {
     }
 
     @PostMapping("/form")
-    public Mono<String> save(@Valid Product product, BindingResult result, Model model, SessionStatus sessionStatus){
+    public Mono<String> save(@Valid Product product, BindingResult result, Model model, @RequestPart(name = "file") FilePart filePart, SessionStatus sessionStatus){
 
         if (result.hasErrors()) {
             model.addAttribute("title", "Errores en el formulario Producto");
@@ -110,13 +117,29 @@ public class ProductController {
                 product.setCreationDate(new Date());
             }
 
+            if (!filePart.filename().isEmpty()){
+                product.setPhoto(UUID.randomUUID().toString() + "-" + filePart.filename()
+                        .replace(" ", "")
+                        .replace(":", "")
+                        .replace("\\", "")
+                );
+            }
+
             product.setCategory(category);
 
             return productService.save(product);
         }).doOnNext(prod -> {
             log.info("Categoria asignada: " + prod.getCategory().getName() + " Id Cat: " + prod.getCategory().getId());
             log.info("Producto guardado: " + prod.getName() + " Id: " + prod.getId());
-        }).thenReturn("redirect:/list?success=producto+guardado+con+exito"); // too : }).then(Mono.just("redirect:/list"));
+        })
+                .flatMap(prod -> {
+                    if (!filePart.filename().isEmpty()){
+                        return filePart.transferTo(new File(path + prod.getPhoto()));
+                    }
+
+                    return Mono.empty();
+                })
+                .thenReturn("redirect:/list?success=producto+guardado+con+exito"); // too : }).then(Mono.just("redirect:/list"));
     }
 
     @GetMapping("/delete/{id}")
