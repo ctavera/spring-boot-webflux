@@ -6,6 +6,10 @@ import da.springframework.springbootwebflux.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +22,9 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
@@ -68,6 +75,19 @@ public class ProductController {
                     return Mono.just(product);
                 }).then(Mono.just("view"))
                 .onErrorResume(throwable -> Mono.just("redirect:/list?error=no+existe+el+producto"));
+    }
+
+    @GetMapping("/uploads/img/{photoName:.+}") //.+ -> .jpg, .pgn, etc.
+    public Mono<ResponseEntity<Resource>> viewPhoto (@PathVariable String photoName) throws MalformedURLException {
+        Path filePath = Paths.get(path).resolve(photoName).toAbsolutePath();
+
+        Resource resource = new UrlResource(filePath.toUri());
+
+        return Mono.just(
+                ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource)
+        );
     }
 
     @GetMapping("/form")
