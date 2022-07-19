@@ -4,11 +4,14 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotEmpty;
+
 @NoArgsConstructor
 @Document(collection = "categories")
 public class Category {
 
     @Id
+    @NotEmpty
     private String id;
 
     private String name;

@@ -103,11 +103,18 @@ public class ProductController {
 
         sessionStatus.setComplete(); //To clean the SessionAttribute
 
-        if (product.getCreationDate() == null){
-            product.setCreationDate(new Date());
-        }
+        Mono<Category> categoryMono = productService.findCategoryById(product.getCategory().getId());
 
-        return productService.save(product).doOnNext(prod -> {
+        return categoryMono.flatMap(category -> {
+            if (product.getCreationDate() == null){
+                product.setCreationDate(new Date());
+            }
+
+            product.setCategory(category);
+
+            return productService.save(product);
+        }).doOnNext(prod -> {
+            log.info("Categoria asignada: " + prod.getCategory().getName() + " Id Cat: " + prod.getCategory().getId());
             log.info("Producto guardado: " + prod.getName() + " Id: " + prod.getId());
         }).thenReturn("redirect:/list?success=producto+guardado+con+exito"); // too : }).then(Mono.just("redirect:/list"));
     }
